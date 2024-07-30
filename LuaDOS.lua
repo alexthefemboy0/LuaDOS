@@ -151,5 +151,3 @@ local Core = {
 }
 
 Core.Execute()
-
-return Core
