@@ -108,7 +108,7 @@ local execCommandCtl = function(cmdInput)
         print("mkdir <directory> -- Makes a directory in the current directory")
         print("cd <directory> -- Navigates to a directory.")
     elseif cmd == "print" then
-        local message = arg:match('print%s+"(.-)"')
+        local message = arg:match('^"(.-)"$')
         if message then
             print(message)
         else
@@ -139,7 +139,7 @@ end
 
 function Exec()
     print("Welcome to LuaDOS.")
-    print("Version 1.0")
+    print("Version 1.2")
     print("By alexthefemboy\n")
     cmdCtl()
 end
