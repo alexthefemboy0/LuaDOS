@@ -94,7 +94,7 @@ del = function(path)
 end
 
 local ReadLine = function()
-    return io.read("l")
+    return io.read("*l")
 end
 
 local execCommandCtl = function(cmdInput)
