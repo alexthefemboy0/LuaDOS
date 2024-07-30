@@ -1,4 +1,4 @@
--- Include ibraries
+-- Include libraries
 
 local LFS = require("lfs")
 
@@ -137,17 +137,11 @@ cmdCtl = function()
     execCommandCtl(cmdInput)
 end
 
-function Exec()
+function Execute()
     print("Welcome to LuaDOS.")
     print("Version 1.2")
     print("By alexthefemboy\n")
     cmdCtl()
 end
 
-local Core = {
-    Execute = function()
-        Exec()
-    end;
-}
-
-Core.Execute()
+Execute() -- Run LuaDOS
