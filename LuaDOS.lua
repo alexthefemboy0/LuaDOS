@@ -196,6 +196,8 @@ local runc = function(cfile)
     end
 
     local outputBinary = cfile:gsub("%.c$", "")
+    local binaryExtension = (package.config:sub(1,1) == "\\") and ".exe" or ""
+    outputBinary = outputBinary .. binaryExtension
 
     local compileCmd
     if package.config:sub(1, 1) == "\\" then
@@ -225,7 +227,7 @@ local runc = function(cfile)
 
     local deleteCmd
     if package.config:sub(1,1) == "\\" then
-        deleteCmd = string.format("del \"%s\"", outputBinary)
+        deleteCmd = string.format("del /Q \"%s\"", outputBinary)
     else
         deleteCmd = string.format("rm \"%s\"", outputBinary)
     end
@@ -290,7 +292,7 @@ end
 Core = {
     Execute = function()
         print("Welcome to LuaDOS.")
-        print("Version 1.2")
+        print("Version 1.5")
         print("By alexthefemboy\n")
         cmdCtl()
     end,
