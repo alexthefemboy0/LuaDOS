@@ -1,7 +1,7 @@
 local Command = {
     Name = "",
     Description = "",
-    Function = function()
+    Function = function(arg)
         -- Your code here
     end,
 }
