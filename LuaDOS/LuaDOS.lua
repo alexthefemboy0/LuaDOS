@@ -4,6 +4,7 @@ local LFS = require("lfs")
 
 -- LuaDOS code
 
+local plugins = {}
 local cmdCtl
 local del
 local os_type, username, hostname, cwd
@@ -74,10 +75,6 @@ end
 
 local NewLine = function()
     print("\n")
-end
-
-local Terminate = function()
-    os.exit(0)
 end
 
 local ls = function()
@@ -244,6 +241,10 @@ local execCommandCtl = function(cmdInput)
         print("exec <command> -- Executes a terminal command from LuaDOS.")
         print("about -- Gives information about LuaDOS.")
         print("c <C file> -- Directly runs a C file from LuaDOS.")
+        -- Display plugins as well
+        for name, plugin in pairs(plugins) do
+            print(name .. " -- " .. (plugin.Description or "No description provided."))
+        end
     elseif cmd == "echo" then
         local message = arg:match('^"(.-)"$')
         if message then
@@ -271,7 +272,12 @@ local execCommandCtl = function(cmdInput)
     elseif cmd == "c" then
         runc(arg)
     else
-        print("\27[31mUnknown command. Type 'help' for commands.\27[0m")
+        local plugin = plugins[cmd]
+        if plugin and plugin.Function then
+            plugin.Function()
+        else
+            print("\27[31mUnknown command. Type 'help' for commands.\27[0m")
+        end
     end
     NewLine()
     cmdCtl()
@@ -288,10 +294,27 @@ Core = {
         print("Welcome to LuaDOS.")
         print("Version 1.5")
         print("By alexthefemboy\n")
+        Core.LoadPlugins()
         cmdCtl()
     end,
     Exit = function()
         os.exit(0)
+    end,
+    LoadPlugins = function()
+        local pluginPath = "Plugins/"
+
+        for file in LFS.dir(pluginPath) do
+            if file:match("%.lua$") then
+                local pluginName = file:match("(.+)%.lua$")
+                local plugin = require(pluginPath .. pluginName)
+
+                if plugin and plugin.Name and plugin.Function then
+                    plugins[pluginName] = plugin
+                else
+                    print("\x1b[33mWarning: Plugin ".. file .. " is missing required fields and was not loaded.\x1b[0m")
+                end
+            end
+        end
     end,
 }
 
