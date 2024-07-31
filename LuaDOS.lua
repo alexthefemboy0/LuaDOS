@@ -2,10 +2,75 @@
 
 local LFS = require("lfs")
 
--- LuaDOS code 
+-- LuaDOS code
 
 local cmdCtl
 local del
+local os_type, username, hostname, cwd
+
+if package.config:sub(1,1) == "\\" then
+
+    os_type = "Windows"
+    username = os.getenv("USERNAME")
+    hostname = os.getenv("COMPUTERNAME")
+else
+ 
+    os_type = "Unix-like"
+    local handle
+
+    handle = io.popen("whoami")
+    if handle then
+        username = handle:read("*l")
+        handle:close()
+    else
+        username = "unknown"
+    end
+
+    handle = io.popen("hostname")
+    if handle then
+        hostname = handle:read("*l")
+        handle:close()
+    end
+
+    if not hostname or hostname == "" then
+        handle = io.open("/etc/hostname", "r")
+        if handle then
+            hostname = handle:read("*l")
+            handle:close()
+        end
+    end
+
+    if not hostname or hostname == "" then
+        handle = io.popen("uname -n")
+        if handle then
+            hostname = handle:read("*l")
+            handle:close()
+        end
+    end
+
+    if not hostname or hostname == "" then
+        hostname = "unknown"
+    end
+end
+
+
+local getCWD = function()
+    local dir = LFS.currentdir()
+    if os_type == "Windows" then
+        return dir:gsub("/", "\\")
+    else
+        return dir:gsub("^/home/"..username, "~")
+    end
+end
+
+local function displayPrompt()
+    cwd = getCWD()
+    if os_type == "Windows" then
+        io.write(string.format("[LuaDOS %s]> ", cwd))
+    else
+        io.write(string.format("[LuaDOS %s@%s %s]$ ", username, hostname, cwd))
+    end
+end
 
 local NewLine = function()
     print("\n")
@@ -15,7 +80,7 @@ local Terminate = function()
     os.exit(0)
 end
 
-local function ls()
+local ls = function()
     for file in LFS.dir(".") do
         if file ~= "." and file ~= ".." then
             local attr, err = LFS.attributes(file)
@@ -154,6 +219,7 @@ local execCommandCtl = function(cmdInput)
 end
 
 cmdCtl = function()
+    displayPrompt()
     local cmdInput = ReadLine()
     execCommandCtl(cmdInput)
 end
