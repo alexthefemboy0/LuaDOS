@@ -253,7 +253,7 @@ local execCommandCtl = function(cmdInput)
         print("del <file/directory> -- deletes a file/directory.")
         print("exec <command> -- Executes a terminal command from LuaDOS.")
         print("about -- Gives information about LuaDOS.")
-        print("runc <C file> -- Directly runs a C file from LuaDOS. (Requires gcc)")
+        print("runc <C file> -- Directly runs a C file from LuaDOS. (requires gcc)")
         print("reloadplugins -- Reloads all plugins.")
         print("systeminfo -- Gives information about your system (requires NeoFetch)")
         -- Display plugins as well
