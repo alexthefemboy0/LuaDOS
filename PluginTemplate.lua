@@ -1,6 +1,6 @@
 local Command = {
-    Name = "Test Command",
-    Description = "This test command does nothing, just a comment",
+    Name = "",
+    Description = "",
     Function = function()
         -- Your code here
     end,

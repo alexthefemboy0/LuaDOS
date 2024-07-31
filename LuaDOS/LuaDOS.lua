@@ -241,6 +241,7 @@ local execCommandCtl = function(cmdInput)
         print("exec <command> -- Executes a terminal command from LuaDOS.")
         print("about -- Gives information about LuaDOS.")
         print("c <C file> -- Directly runs a C file from LuaDOS.")
+        print("reloadplugins -- Reloads all plugins.")
         -- Display plugins as well
         for name, plugin in pairs(plugins) do
             print(name .. " -- " .. (plugin.Description or "No description provided."))
@@ -271,6 +272,8 @@ local execCommandCtl = function(cmdInput)
         about()
     elseif cmd == "c" then
         runc(arg)
+    elseif cmd == "reloadplugins" then
+        Core.LoadPlugins()
     else
         local plugin = plugins[cmd]
         if plugin and plugin.Function then
@@ -303,13 +306,18 @@ Core = {
     LoadPlugins = function()
         local pluginPath = "Plugins/"
 
+        if LFS.attributes(pluginPath, "mode") ~= "directory" then
+            print("\x1b[33mWarning: Could not find plugins directory. No plugins will be loaded.\x1b[0m")
+            return
+        end
+
         for file in LFS.dir(pluginPath) do
             if file:match("%.lua$") then
                 local pluginName = file:match("(.+)%.lua$")
                 local plugin = require(pluginPath .. pluginName)
 
                 if plugin and plugin.Name and plugin.Function then
-                    plugins[pluginName] = plugin
+                    plugins[plugin.Name] = plugin
                 else
                     print("\x1b[33mWarning: Plugin ".. file .. " is missing required fields and was not loaded.\x1b[0m")
                 end
