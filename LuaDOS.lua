@@ -199,13 +199,7 @@ local runc = function(cfile)
     local binaryExtension = (package.config:sub(1,1) == "\\") and ".exe" or ""
     outputBinary = outputBinary .. binaryExtension
 
-    local compileCmd
-    if package.config:sub(1, 1) == "\\" then
-        compileCmd = string.format("gcc \"%s\" -o \"%s.exe\"", cfile, outputBinary)
-
-    else
-        compileCmd = string.format("gcc \"%s\" -o \"%s\"", cfile, outputBinary)
-    end
+    local compileCmd = string.format("gcc \"%s\" -o \"%s\" 2>&1", cfile, outputBinary)
 
     local compiler = io.popen(compileCmd)
     local compilerOutput = compiler:read("*a")
