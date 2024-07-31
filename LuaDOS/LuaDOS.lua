@@ -177,6 +177,19 @@ local about = function()
     print("LuaDOS is a DOS-like environment made with Lua.\nMade by alexthefemboy.")
 end
 
+local systeminfo = function()
+    local neofetchCheck = io.popen("neofetch")
+    local output = neofetchCheck:read("*a")
+    neofetchCheck:close()
+
+    if not output or output == "" then
+        print("\27[31mNeoFetch is either not installed on your system or not in your environment PATH variable.\27[0m")
+        return
+    end
+
+    os.execute("neofetch")
+end
+
 local runc = function(cfile)
     if not cfile:match("%.c$") then
         print("Please provide a valid C file ending in .c")
@@ -242,6 +255,7 @@ local execCommandCtl = function(cmdInput)
         print("about -- Gives information about LuaDOS.")
         print("runc <C file> -- Directly runs a C file from LuaDOS.")
         print("reloadplugins -- Reloads all plugins.")
+        print("systeminfo -- Gives information about your system (requires NeoFetch)")
         -- Display plugins as well
         for name, plugin in pairs(plugins) do
             print(name .. " -- " .. (plugin.Description or "No description provided."))
@@ -251,7 +265,7 @@ local execCommandCtl = function(cmdInput)
         if message then
             print(message)
         else
-            print('Usage: print "message"')
+            print('Usage: echo "message"')
         end
     elseif cmd == "exit" then
         print("Exiting LuaDOS...")
@@ -274,6 +288,8 @@ local execCommandCtl = function(cmdInput)
         runc(arg)
     elseif cmd == "reloadplugins" then
         Core.LoadPlugins()
+    elseif cmd == "systeminfo" then
+        systeminfo()
     else
         local plugin = plugins[cmd]
         if plugin and plugin.Function then
