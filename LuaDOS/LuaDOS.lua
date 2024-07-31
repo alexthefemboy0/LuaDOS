@@ -227,13 +227,13 @@ local runc = function(cfile)
 end
 
 local runlua = function(command)
-    local func, error = load(command)
+    local func, err = load(command, "=(load)", "t", _ENV)
     if not func then
-        print("\27[31mFailed to execute: " .. error .."\27[0m")
+        print("\27[31mFailed to run Lua code: ".. err .."\27[0m")
     else
         local success, result = pcall(func)
         if not success then
-            print("\27[31mFailed to execute: " .. result .."\27[0m")
+            print("\27[31mFailed to execute: ".. result .."\27[0m")
         elseif result then
             print(result)
         end
