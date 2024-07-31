@@ -176,6 +176,63 @@ local exec = function(command)
     end
 end
 
+local about = function()
+    print("LuaDOS is a DOS-like environment made with Lua.\nMade by alexthefemboy.")
+end
+
+local runc = function(cfile)
+    if not cfile:match("%.c$") then
+        print("Please provide a valid C file ending in .c")
+        return
+    end
+
+    local gccCheck = io.popen("gcc --version")
+    local output = gccCheck:read("*a")
+    gccCheck:close()
+
+    if not output or output == "" then
+        print("\27[31mThe GNU C Compiler (gcc) is either not installed on your system or not in your environment PATH variable.\27[0m")
+        return
+    end
+
+    local outputBinary = cfile:gsub("%.c$", "")
+
+    local compileCmd
+    if package.config:sub(1, 1) == "\\" then
+        compileCmd = string.format("gcc \"%s\" -o \"%s.exe\"", cfile, outputBinary)
+
+    else
+        compileCmd = string.format("gcc \"%s\" -o \"%s\"", cfile, outputBinary)
+    end
+
+    local compiler = io.popen(compileCmd)
+    local compilerOutput = compiler:read("*a")
+    local compileSuccess, compileStatus, compileExitCode = compiler:close()
+
+    if not compileSuccess then
+        print("\27[31mYour C file failed to compile to a binary (is there an error in your code?)\27[0m")
+        return
+    end
+
+    local runCmd
+    if package.config:sub(1, 1) == "\\" then
+        runCmd = outputBinary
+    else
+        runCmd = "./" .. outputBinary
+    end
+
+    local runBin = os.execute(runCmd)
+
+    local deleteCmd
+    if package.config:sub(1, 1) == "\\" then
+        deleteCmd = string.format("del \"%s\"", outputBinary)
+    else
+        deleteCmd = string.format("rm \"%s\"", outputBinary)
+    end
+
+    os.execute(deleteCmd)
+end
+
 local execCommandCtl = function(cmdInput)
     local cmd, arg = cmdInput:match("^(%S+)%s*(.*)$")
     if cmd == "help" then
@@ -189,6 +246,8 @@ local execCommandCtl = function(cmdInput)
         print("cls -- Clears the screen.")
         print("del <file/directory> -- deletes a file/directory.")
         print("exec <command> -- Executes a terminal command from LuaDOS.")
+        print("about -- Gives information about LuaDOS.")
+        print("c <C file> -- Directly runs a C file from LuaDOS.")
     elseif cmd == "echo" then
         local message = arg:match('^"(.-)"$')
         if message then
@@ -198,7 +257,7 @@ local execCommandCtl = function(cmdInput)
         end
     elseif cmd == "exit" then
         print("Exiting LuaDOS...")
-        Terminate()
+        Core.Exit();
     elseif cmd == "dir" then
         ls()
     elseif cmd == "mkdir" then
@@ -211,6 +270,10 @@ local execCommandCtl = function(cmdInput)
         io.write("\27[2J\27[H")
     elseif cmd == "exec" then
         exec(arg)
+    elseif cmd == "about" then
+        about()
+    elseif cmd == "c" then
+        runc(arg)
     else
         print("\27[31mUnknown command. Type 'help' for commands.\27[0m")
     end
@@ -224,11 +287,18 @@ cmdCtl = function()
     execCommandCtl(cmdInput)
 end
 
-function Execute()
-    print("Welcome to LuaDOS.")
-    print("Version 1.2")
-    print("By alexthefemboy\n")
-    cmdCtl()
-end
+Core = {
+    Execute = function()
+        print("Welcome to LuaDOS.")
+        print("Version 1.2")
+        print("By alexthefemboy\n")
+        cmdCtl()
+    end,
+    Exit = function()
+        os.exit(0)
+    end,
+}
 
-Execute() -- Run LuaDOS
+Core.Execute()
+
+return Core
