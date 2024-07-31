@@ -312,7 +312,7 @@ end
 Core = {
     Execute = function()
         print("Welcome to LuaDOS.")
-        print("Version 1.5")
+        print("Version 1.7")
         print("By alexthefemboy\n")
         Core.LoadPlugins()
         cmdCtl()
