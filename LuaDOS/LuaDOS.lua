@@ -306,6 +306,10 @@ Core = {
     LoadPlugins = function()
         local pluginPath = "Plugins/"
 
+        if package.config:sub(1, 1) == "\\" then
+            pluginPath = pluginPath:gsub("/", "\\")
+        end
+
         if LFS.attributes(pluginPath, "mode") ~= "directory" then
             print("\x1b[33mWarning: Could not find plugins directory. No plugins will be loaded.\x1b[0m")
             return
