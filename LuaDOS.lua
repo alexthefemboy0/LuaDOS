@@ -224,7 +224,7 @@ local runc = function(cfile)
     local runBin = os.execute(runCmd)
 
     local deleteCmd
-    if package.config:sub(1, 1) == "\\" then
+    if package.config:sub(1,1) == "\\" then
         deleteCmd = string.format("del \"%s\"", outputBinary)
     else
         deleteCmd = string.format("rm \"%s\"", outputBinary)
