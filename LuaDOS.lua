@@ -101,13 +101,15 @@ local execCommandCtl = function(cmdInput)
     local cmd, arg = cmdInput:match("^(%S+)%s*(.*)$")
     if cmd == "help" then
         print("Current commands:")
-        print("help -- Gives all current commands")
-        print('print "<message>" -- Prints a message to the screen')
-        print("exit -- Exits LuaDOS back to your terminal")
-        print("ls -- Lists all the files in the current directory")
-        print("mkdir <directory> -- Makes a directory in the current directory")
+        print("help -- Gives all current commands.")
+        print('echo "<message>" -- Prints a message to the screen.')
+        print("exit -- Exits LuaDOS back to your terminal.")
+        print("dir -- Lists all the files in the current directory.")
+        print("mkdir <directory> -- Makes a directory in the current directory.")
         print("cd <directory> -- Navigates to a directory.")
-    elseif cmd == "print" then
+        print("cls -- Clears the screen.")
+        print("del <file/directory> -- deletes a file/directory.")
+    elseif cmd == "echo" then
         local message = arg:match('^"(.-)"$')
         if message then
             print(message)
@@ -117,7 +119,7 @@ local execCommandCtl = function(cmdInput)
     elseif cmd == "exit" then
         print("Exiting LuaDOS...")
         Terminate()
-    elseif cmd == "ls" then
+    elseif cmd == "dir" then
         ls()
     elseif cmd == "mkdir" then
         mkdir(arg)
@@ -125,8 +127,10 @@ local execCommandCtl = function(cmdInput)
         cd(arg)
     elseif cmd == "del" then
         del(arg)
+    elseif cmd == "cls" then
+        io.write("\27[2J\27[H")
     else
-        print("Unknown command. Type 'help' for commands.")
+        print("\27[31mUnknown command. Type 'help' for commands.\27[0m")
     end
     NewLine()
     cmdCtl()
