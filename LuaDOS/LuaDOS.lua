@@ -226,6 +226,20 @@ local runc = function(cfile)
     os.execute(deleteCmd)
 end
 
+local runlua = function(command)
+    local func, error = load(command)
+    if not func then
+        print("\27[31mFailed to execute: " .. error .."\27[0m")
+    else
+        local success, result = pcall(func)
+        if not success then
+            print("\27[31mFailed to execute: " .. result .."\27[0m")
+        elseif result then
+            print(result)
+        end
+    end
+end
+
 local execCommandCtl = function(cmdInput)
     local cmd, arg = cmdInput:match("^(%S+)%s*(.*)$")
     if cmd == "help" then
@@ -240,7 +254,8 @@ local execCommandCtl = function(cmdInput)
         print("del <file/directory> -- deletes a file/directory.")
         print("exec <command> -- Executes a terminal command from LuaDOS.")
         print("about -- Gives information about LuaDOS.")
-        print("c <C file> -- Directly runs a C file from LuaDOS.")
+        print("runc <C file> -- Directly runs a C file from LuaDOS.")
+        print("runlua -- Runs a Lua command.")
         print("reloadplugins -- Reloads all plugins.")
         -- Display plugins as well
         for name, plugin in pairs(plugins) do
@@ -270,8 +285,10 @@ local execCommandCtl = function(cmdInput)
         exec(arg)
     elseif cmd == "about" then
         about()
-    elseif cmd == "c" then
+    elseif cmd == "runc" then
         runc(arg)
+    elseif cmd == "runlua" then
+        runlua(arg)
     elseif cmd == "reloadplugins" then
         Core.LoadPlugins()
     else
