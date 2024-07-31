@@ -97,6 +97,20 @@ local ReadLine = function()
     return io.read("*l")
 end
 
+local exec = function(command)
+    if command and command ~= "" then
+        local success, _, exitCode = os.execute(command)
+
+        if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
+            -- Command executed successfully
+        else
+            print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+        end
+    else
+        print("Usage: exec <command>")
+    end
+end
+
 local execCommandCtl = function(cmdInput)
     local cmd, arg = cmdInput:match("^(%S+)%s*(.*)$")
     if cmd == "help" then
@@ -109,6 +123,7 @@ local execCommandCtl = function(cmdInput)
         print("cd <directory> -- Navigates to a directory.")
         print("cls -- Clears the screen.")
         print("del <file/directory> -- deletes a file/directory.")
+        print("exec <command> -- Executes a terminal command from LuaDOS.")
     elseif cmd == "echo" then
         local message = arg:match('^"(.-)"$')
         if message then
@@ -129,6 +144,8 @@ local execCommandCtl = function(cmdInput)
         del(arg)
     elseif cmd == "cls" then
         io.write("\27[2J\27[H")
+    elseif cmd == "exec" then
+        exec(arg)
     else
         print("\27[31mUnknown command. Type 'help' for commands.\27[0m")
     end
