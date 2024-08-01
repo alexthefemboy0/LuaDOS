@@ -1,10 +1,13 @@
 -- Include libraries
 
 local LFS = require("lfs")
+local Settings = require("Settings")
 
 -- LuaDOS code
 
 local plugins = {}
+local ExecPermissionLevel = Settings.ExecPermissionLevel
+local ExecAllowedCommands = Settings.ExecAllowedCommands
 local cmdCtl
 local del
 local os_type, username, hostname, cwd
@@ -161,12 +164,29 @@ end
 
 local exec = function(command)
     if command and command ~= "" then
-        local success, _, exitCode = os.execute(command)
+        if ExecPermissionLevel == 1 then
+            local commandName = command:match("^%S+")
+            if ExecAllowedCommands[commandName] then
+                local success, _, exitCode = os.execute(command)
 
-        if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
-            -- Command executed successfully
-        else
-            print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+                if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
+                    -- Command executed successfully
+                else
+                    print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+                end
+            else
+                print("\27[31mNot allowed to execute this command.\27[0m")
+            end
+        elseif ExecPermissionLevel == 2 then
+            local success, _, exitCode = os.execute(command)
+
+            if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
+                -- Command executed successfully
+            else
+                print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+            end
+        elseif ExecPermissionLevel == 0 then
+            print("\27[31mExec is disabled.\27[0m")
         end
     else
         print("Usage: exec <command>")
@@ -311,7 +331,7 @@ end
 Core = {
     Execute = function()
         print("Welcome to LuaDOS.")
-        print("Version 1.7")
+        print("Version 1.9")
         print("By alexthefemboy\n")
         Core.LoadPlugins()
         cmdCtl()
