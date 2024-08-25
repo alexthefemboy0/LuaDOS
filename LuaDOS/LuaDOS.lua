@@ -11,6 +11,7 @@ local ExecAllowedCommands = Settings.ExecAllowedCommands
 local cmdCtl
 local del
 local os_type, username, hostname, cwd
+local systemInfoCommand = Settings.systemInfoCommand
 
 if package.config:sub(1,1) == "\\" then
 
@@ -198,16 +199,16 @@ local about = function()
 end
 
 local systeminfo = function()
-    local neofetchCheck = io.popen("neofetch")
+    local neofetchCheck = io.popen(systemInfoCommand)
     local output = neofetchCheck:read("*a")
     neofetchCheck:close()
 
     if not output or output == "" then
-        print("\27[31mNeoFetch is either not installed on your system or not in your environment PATH variable.\27[0m")
+        print("\27[31m" .. systemInfoCommand .." is either not installed on your system or not in your environment PATH variable.\27[0m")
         return
     end
 
-    os.execute("neofetch")
+    os.execute(systemInfoCommand)
 end
 
 local runc = function(cfile)
@@ -259,6 +260,14 @@ local runc = function(cfile)
     os.execute(deleteCmd)
 end
 
+local execa = function (program)
+    local execFunc = function ()
+        os.execute(program)
+    end
+    local routine = coroutine.create(execFunc)
+    coroutine.resume(routine)
+end
+
 local execCommandCtl = function(cmdInput)
     local cmd, arg = cmdInput:match("^(%S+)%s*(.*)$")
     if cmd == "help" then
@@ -272,10 +281,11 @@ local execCommandCtl = function(cmdInput)
         print("cls -- Clears the screen.")
         print("del <file/directory> -- deletes a file/directory.")
         print("exec <command> -- Executes a terminal command from LuaDOS.")
+        print("execa <command> -- Executes a terminal command from LuaDOS, but it will run asynchronously from the main thread.")
         print("about -- Gives information about LuaDOS.")
         print("runc <C file> -- Directly runs a C file from LuaDOS. (requires gcc)")
         print("reloadplugins -- Reloads all plugins.")
-        print("systeminfo -- Gives information about your system (requires NeoFetch)")
+        print("systeminfo -- Gives information about your system (requires " .. systemInfoCommand .. ")")
         -- Display plugins as well
         for name, plugin in pairs(plugins) do
             print(name .. " -- " .. (plugin.Description or "No description provided."))
@@ -310,6 +320,8 @@ local execCommandCtl = function(cmdInput)
         Core.LoadPlugins()
     elseif cmd == "systeminfo" then
         systeminfo()
+    elseif cmd == "execa" then
+        execa(arg)
     else
         local plugin = plugins[cmd]
         if plugin and plugin.Function then
