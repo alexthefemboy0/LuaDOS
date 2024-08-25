@@ -10,7 +10,7 @@ local Settings = {
         "ls",
         "echo",
     }, -- Commands exec is allowed to use if permission level is 1.
-    systemInfoCommand = "hyfetch", -- Command that 'systeminfo' will use. (e.g. neofetch, fastfetch, hyfetch, etc.)
+    systemInfoCommand = "fastfetch", -- Command that 'systeminfo' will use. (e.g. neofetch, fastfetch, hyfetch, etc.)
 }
 
 return Settings

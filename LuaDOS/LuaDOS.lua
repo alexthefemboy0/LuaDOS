@@ -260,11 +260,38 @@ local runc = function(cfile)
     os.execute(deleteCmd)
 end
 
-local execa = function (program)
-    local execFunc = function ()
-        os.execute(program)
+local execa = function(command)
+    local doCommand = function()
+        if command and command ~= "" then
+            if ExecPermissionLevel == 1 then
+                local commandName = command:match("^%S+")
+                if ExecAllowedCommands[commandName] then
+                    local success, _, exitCode = os.execute(command)
+    
+                    if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
+                        -- Command executed successfully
+                    else
+                        print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+                    end
+                else
+                    print("\27[31mNot allowed to execute this command.\27[0m")
+                end
+            elseif ExecPermissionLevel == 2 then
+                local success, _, exitCode = os.execute(command)
+                    
+                if (success == true or success == 0) and (exitCode == nil or exitCode == 0) then
+                    -- Command executed successfully
+                else
+                    print("\27[31mCommand did not complete successfully. (do you have sudo/run as administrator permissions?)\27[0m")
+                end
+            elseif ExecPermissionLevel == 0 then
+                print("\27[31mExec is disabled.\27[0m")
+            end
+        else
+            print("Usage: execa <command>")
+        end
     end
-    local routine = coroutine.create(execFunc)
+    local routine = coroutine.create(doCommand)
     coroutine.resume(routine)
 end
 
@@ -370,6 +397,9 @@ Core = {
 
                 if plugin and plugin.Name and plugin.Function then
                     plugins[plugin.Name] = plugin
+                    if plugin.Autorun == true then
+                        plugin.Function()
+                    end
                 else
                     print("\x1b[33mWarning: Plugin ".. file .. " is missing required fields and was not loaded.\x1b[0m")
                 end
